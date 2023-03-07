@@ -1,0 +1,29 @@
+{
+  "name": "cra-template-finnbueno",
+  "version": "1.0.0",
+  "description": "A personal template for Create React App",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FinnBueno/cra-template-finnbueno.git"
+  },
+  "tags": [
+    "react",
+    "create-react-app",
+    "template",
+    "typescript"
+  ],
+  "author": "Finn Bon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FinnBueno/cra-template-finnbueno/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "template",
+    "template.json"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "homepage": "https://github.com/FinnBueno/cra-template-finnbueno#readme"
+}
