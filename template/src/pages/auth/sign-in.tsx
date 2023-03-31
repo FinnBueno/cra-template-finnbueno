@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Flex, Input, Text } from 'theme-ui';
+import { Button, Flex, Heading, Container, Text } from 'theme-ui';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
@@ -12,7 +12,9 @@ import {
     signInWithPopup
 } from 'firebase/auth';
 import { Translate, translate } from 'react-i18nify';
+import { toast } from 'react-toastify';
 import { ButtonWithIcon } from 'components/atoms';
+import { InputField } from 'components/molecules';
 
 type SignInForm = {
     email: string;
@@ -33,90 +35,96 @@ export const SignInPage: FC<{}> = () => {
             .required(translate('auth.error.passwordMinimum', { count: 5 }))
     });
 
-    const { handleSubmit, register } = useForm<SignInForm>({
+    const {
+        handleSubmit,
+        register,
+        formState: { errors }
+    } = useForm<SignInForm>({
         resolver: yupResolver(schema)
     });
 
     const navigate = useNavigate();
 
+    const signInError = ({ code }: any) => {
+        if (code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+            toast(translate('auth.error.userNotFound'), {
+                type: 'error'
+            });
+        } else {
+            toast('Something went wrong during sign in. Please try again later', {
+                type: 'error'
+            });
+        }
+    }
+
     const signIn = ({ email, password }: SignInForm) => {
-        signInWithEmailAndPassword(auth, email, password).catch((_error) => {
-            // console.log(error);
-        });
+        signInWithEmailAndPassword(auth, email, password).catch(signInError);
     };
 
     const signInWithGoogle = () => {
         const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider).catch((_error) => {
-            // console.log(error);
-        });
+        signInWithPopup(auth, provider).catch(signInError);
     };
 
     return (
-        <Flex
+        <Container
             sx={{
-                width: '100%',
-                height: '100%',
-                flexDirection: 'column',
-                justifyContent: 'flex-start'
+                display: 'flex',
+                justifyContent: 'center'
             }}
         >
-            <Text
-                variant="h4"
-                color="white"
-                style={{
-                    fontFamily:
-                        '"Arial Black", "Roboto", "Helvetica", "Arial", sans-serif'
+            <Flex
+                sx={{
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: 'narrow'
                 }}
+                as="form"
+                onSubmit={handleSubmit(signIn)}
             >
-                My App
-            </Text>
-            <form>
-                <Flex sx={{ flexDirection: 'column' }} m={3} mb={2}>
-                    <Text variant="h2">
+                <Flex
+                    sx={{
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                        mb: 5
+                    }}
+                >
+                    <Heading as="h1">My App</Heading>
+                    <Text>
                         <Translate value="auth.welcome" />
                     </Text>
-                    <Text variant="body1">
+                    <Text>
                         <Translate value="auth.welcomeSubtitle" />
                     </Text>
-                    <Flex mt={4} mb={2}>
-                        <Input
-                            {...register('email', { required: true })}
-                            defaultValue=""
-                            // name='email'
-                            // label='E-mail'
-                            // type='email'
-                        />
-                    </Flex>
-                    <Flex mb={2}>
-                        <Input
-                            {...register('password', { required: true })}
-                            defaultValue=""
-                            // name='password'
-                            // label={translate('auth.password')}
-                            // type='password'
-                        />
-                    </Flex>
-                    <Button variant="contained" onClick={handleSubmit(signIn)}>
-                        <Translate value="auth.signIn" />
-                    </Button>
                 </Flex>
-            </form>
-            <Flex sx={{ flexDirection: 'column' }} mx={3}>
+                <InputField
+                    {...register('email', { required: true })}
+                    defaultValue=""
+                    label={translate('auth.email')}
+                    errors={errors}
+                    type="email"
+                />
+                <InputField
+                    {...register('password', { required: true })}
+                    defaultValue=""
+                    type="password"
+                    label={translate('auth.password')}
+                    errors={errors}
+                />
+                <Button sx={{ mt: 6 }} variant="primary" onClick={handleSubmit(signIn)}>
+                    <Translate value="auth.signIn" />
+                </Button>
                 <ButtonWithIcon
-                    variant="contained"
-                    color="neutral"
+                    variant="outlined"
                     onClick={signInWithGoogle}
                     icon={<FcGoogle size={20} />}
                 >
                     <Translate value="auth.signInWithGoogle" />
                 </ButtonWithIcon>
-                <Flex mt={2} sx={{ justifyContent: 'center' }}>
-                    <Button onClick={() => navigate('/sign-up')}>
-                        <Translate value="auth.createAccountInstead" />
-                    </Button>
-                </Flex>
+                <Button variant="text" onClick={() => navigate('/sign-up')}>
+                    <Translate value="auth.createAccountInstead" />
+                </Button>
             </Flex>
-        </Flex>
+        </Container>
     );
 };

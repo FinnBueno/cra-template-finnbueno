@@ -3,6 +3,7 @@ import { Localization } from './type';
 export const en: Localization = {
     auth: {
         error: {
+            userNotFound: 'Your credentials are incorrect',
             emailAlreadyInUse:
                 'An account with that e-mail address already exists',
             passwordMinimum:
@@ -18,6 +19,8 @@ export const en: Localization = {
         createAccount: 'Create account',
         createAccountInstead: 'Create account instead',
         signInInstead: 'Sign in instead',
+        email: 'E-mail',
+        username: 'Username',
         password: 'Password'
     },
     title: 'MyApp'

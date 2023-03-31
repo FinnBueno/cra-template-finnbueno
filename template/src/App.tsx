@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { setLocale, setTranslations } from 'react-i18nify';
+import { setHandleMissingTranslation, setLocale, setTranslations } from 'react-i18nify';
 import { ThemeProvider } from 'theme-ui';
 import { AppRouter } from 'pages/router';
 import { AuthProvider } from 'services/auth';
@@ -11,8 +11,13 @@ import { theme } from 'services/styles';
 
 setTranslations({
     en,
-    nl
+    nl: {
+        ...en,
+        ...nl
+    }
 });
+
+setHandleMissingTranslation((key: string) => `Missing translation: ${key}`);
 
 setLocale('en');
 

@@ -1,6 +1,7 @@
 export type Localization = {
     auth: {
         error: {
+            userNotFound: string;
             emailAlreadyInUse: string;
             passwordMinimum: string;
             emailValid: string;
@@ -13,7 +14,9 @@ export type Localization = {
         createAccount: string;
         createAccountInstead: string;
         signInInstead: string;
+        username: string;
         password: string;
+        email: string;
     };
     title: string;
 };

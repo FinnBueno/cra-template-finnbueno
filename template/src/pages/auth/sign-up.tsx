@@ -1,12 +1,13 @@
 import { FC } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Flex, Input, Text } from 'theme-ui';
+import { Button, Flex, Heading, Container, Text } from 'theme-ui';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { Translate, translate } from 'react-i18nify';
 import { toast } from 'react-toastify';
+import { InputField } from 'components/molecules';
 
 type SignUpForm = {
     username: string;
@@ -32,7 +33,11 @@ export const SignUpPage: FC<{}> = () => {
             .required(translate('auth.error.passwordMinimum', { count: 5 }))
     });
 
-    const { handleSubmit, register } = useForm<SignUpForm>({
+    const {
+        handleSubmit,
+        register,
+        formState: { errors }
+    } = useForm<SignUpForm>({
         resolver: yupResolver(schema)
     });
 
@@ -45,69 +50,78 @@ export const SignUpPage: FC<{}> = () => {
                     type: 'success'
                 });
             })
-            .catch((_error) => {
-                // TODO: Check for the right error code
-                toast(translate('auth.error.emailAlreadyInUse'), {
-                    type: 'error'
-                });
+            .catch(({ code }) => {
+                if (code === 'auth/email-already-in-use') {
+                    toast(translate('auth.error.emailAlreadyInUse'), {
+                        type: 'error'
+                    });
+                } else {
+                    toast('Something went wrong during sign in. Please try again later', {
+                        type: 'error'
+                    });
+                }
             });
     };
 
     return (
-        <Flex
+        <Container
             sx={{
-                width: '100%',
-                height: '100%',
-                flexDirection: 'column',
-                justifyContent: 'flex-start'
+                display: 'flex',
+                justifyContent: 'center'
             }}
         >
-            <Text
-                variant="h4"
-                color="white"
-                style={{
-                    fontFamily:
-                        '"Arial Black", "Roboto", "Helvetica", "Arial", sans-serif'
+            <Flex
+                sx={{
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: 'narrow'
                 }}
+                as="form"
+                onSubmit={handleSubmit(signUp)}
             >
-                My App
-            </Text>
-            <form>
-                <Flex sx={{ flexDirection: 'column' }} m={3} mb={2}>
-                    <Text variant="h2">
+                <Flex
+                    sx={{
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                        mb: 5
+                    }}
+                >
+                    <Heading as="h1">My App</Heading>
+                    <Text>
                         <Translate value="auth.welcome" />
                     </Text>
-                    <Text variant="body1">
+                    <Text>
                         <Translate value="auth.welcomeSubtitle" />
                     </Text>
-                    <Flex mt={4} mb={2}>
-                        <Input
-                            {...register('email', { required: true })}
-                            defaultValue=""
-                            // name='email'
-                            // label='E-mail'
-                            // type='email'
-                        />
-                    </Flex>
-                    <Flex mb={2}>
-                        <Input
-                            {...register('password', { required: true })}
-                            defaultValue=""
-                            // name='password'
-                            // label={translate('auth.password')}
-                            // type='password'
-                        />
-                    </Flex>
-                    <Button variant="contained" onClick={handleSubmit(signUp)}>
-                        <Translate value="auth.createAccount" />
-                    </Button>
                 </Flex>
-            </form>
-            <Flex mt={2} sx={{ justifyContent: 'center' }}>
-                <Button onClick={() => navigate('/sign-in')}>
+                <InputField
+                    {...register('username', { required: true })}
+                    defaultValue=""
+                    label={translate('auth.username')}
+                    errors={errors}
+                    type="username"
+                />
+                <InputField
+                    {...register('email', { required: true })}
+                    defaultValue=""
+                    label={translate('auth.email')}
+                    errors={errors}
+                    type="email"
+                />
+                <InputField
+                    {...register('password', { required: true })}
+                    defaultValue=""
+                    type="password"
+                    label={translate('auth.password')}
+                    errors={errors}
+                />
+                <Button sx={{ mt: 6 }} variant="primary" onClick={handleSubmit(signUp)}>
+                    <Translate value="auth.createAccount" />
+                </Button>
+                <Button variant="text" onClick={() => navigate('/sign-in')}>
                     <Translate value="auth.signInInstead" />
                 </Button>
             </Flex>
-        </Flex>
+        </Container>
     );
 };
